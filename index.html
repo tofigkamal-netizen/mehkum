@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEN PRS — Nəzarət Subyektlərinin Vahid Qeydiyyat Platforması</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #EDEFEB; --panel: #FFFFFF; --panel2: #F7F8F5;
+  --ink: #14181D; --ink2: #5A635F; --ink3: #89918C;
+  --rule: #CBD0C9; --rule2: #E3E7E1;
+  --primary: #1F5F55; --primary-d: #164A42; --primary-l: #E4EFEB;
+  --alert: #8C2F1E; --alert-l: #F7E9E5;
+  --warn: #9A6B0F; --warn-l: #FAF1DC;
+  --seal: #A8873E;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --rail: 250px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--primary); }
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.hide { display: none !important; }
+
+/* LAYOUT */
+#login { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; }
+@media(max-width: 900px) { #login { grid-template-columns: 1fr; } .brandside { display: none; } }
+.brandside { background: var(--ink); color: #E8ECE8; padding: 56px 60px; display: flex; flex-direction: column; justify-content: space-between; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 34px); }
+.brandside .crest { width: 48px; height: 48px; border: 2px solid var(--seal); display: grid; place-items: center; color: var(--seal); font-family: var(--mono); font-weight: 600; font-size: 16px; }
+.brandside h1 { font-size: 32px; line-height: 1.2; margin: 24px 0 14px; font-weight: 600; }
+.brandside p { color: #9EA9A3; max-width: 48ch; margin: 0 0 12px; font-size: 13px; line-height: 1.6; }
+.factgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); margin-top: 28px; }
+.factgrid div { background: var(--ink); padding: 12px 14px; }
+.factgrid b { display: block; font-family: var(--mono); font-size: 18px; color: #F0F2EF; font-weight: 500; }
+.factgrid span { font-size: 11.5px; color: #8E9993; }
+
+.loginside { background: var(--panel); padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+.loginbox { width: 100%; max-width: 400px; margin: 0 auto; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: var(--ink2); margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.field input, .field select, .field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--rule); background: var(--panel2); border-radius: 2px; outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px var(--primary-l); }
+.field .hint { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+
+.btn { padding: 8px 14px; border: 1px solid var(--primary); background: var(--primary); color: #fff; border-radius: 2px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+.btn:hover { background: var(--primary-d); border-color: var(--primary-d); }
+.btn.ghost { background: transparent; color: var(--primary); }
+.btn.ghost:hover { background: var(--primary-l); }
+.btn.neutral { background: #fff; color: var(--ink); border-color: var(--rule); }
+.btn.neutral:hover { background: var(--panel2); }
+.btn.danger { background: var(--alert); border-color: var(--alert); color: #fff; }
+.btn.sm { padding: 4px 8px; font-size: 12px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.block { width: 100%; }
+
+.msg { padding: 9px 12px; border-left: 3px solid var(--alert); background: var(--alert-l); font-size: 12.5px; margin-bottom: 14px; }
+.msg.ok { border-color: var(--primary); background: var(--primary-l); }
+
+/* MAIN SHELL */
+#app { display: grid; grid-template-columns: var(--rail) 1fr; min-height: 100vh; }
+.rail { background: var(--ink); color: #CFD6D1; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; z-index: 30; }
+.rail .top { padding: 16px 18px 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.rail .top .crest { width: 32px; height: 32px; border: 1.5px solid var(--seal); color: var(--seal); display: grid; place-items: center; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.rail .top .sys { font-weight: 600; color: #fff; font-size: 14px; margin-top: 8px; }
+.rail .top .unit { font-size: 11px; color: #8E9993; margin-top: 2px; line-height: 1.3; }
+.nav { flex: 1; overflow-y: auto; padding: 10px 0; }
+.nav button { display: flex; width: 100%; align-items: center; gap: 9px; padding: 8px 18px; background: none; border: 0; color: #CFD6D1; cursor: pointer; text-align: left; font-size: 13px; border-left: 3px solid transparent; }
+.nav button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.nav button.on { background: rgba(255,255,255,.09); color: #fff; border-left-color: var(--seal); font-weight: 500; }
+.nav .grouplabel { padding: 12px 18px 4px; font-size: 10.5px; color: #6E7873; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; }
+.nav .badge { margin-left: auto; background: var(--alert); color: #fff; font-family: var(--mono); font-size: 10.5px; padding: 0 5px; border-radius: 2px; }
+
+.rail .bot { padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.1); font-size: 12px; }
+.rail .bot .who { color: #fff; font-weight: 500; font-size: 12.5px; }
+.rail .bot .role { color: #8E9993; font-size: 11px; margin-top: 1px; }
+
+.main { display: flex; flex-direction: column; min-width: 0; background: var(--paper); }
+.topbar { background: var(--panel); border-bottom: 1px solid var(--rule); padding: 10px 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 20; }
+.topbar h2 { font-size: 16px; }
+.topbar .spacer { flex: 1; }
+.topbar .sess { font-family: var(--mono); font-size: 11.5px; color: var(--ink2); background: var(--panel2); padding: 4px 8px; border: 1px solid var(--rule2); }
+
+.content { padding: 20px 24px 60px; max-width: 1440px; width: 100%; }
+
+/* UI COMPONENTS */
+.panel { background: var(--panel); border: 1px solid var(--rule); margin-bottom: 18px; }
+.panel > header { padding: 10px 16px; border-bottom: 1px solid var(--rule2); display: flex; align-items: center; gap: 10px; background: var(--panel); }
+.panel > header h3 { font-size: 14px; }
+.panel > header .spacer { flex: 1; }
+.panel .body { padding: 16px; }
+
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+@media(max-width: 1024px) { .g3, .g4 { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 640px) { .g2, .g3, .g4 { grid-template-columns: 1fr; } }
+
+.stat { background: var(--panel); border: 1px solid var(--rule); padding: 12px 14px; border-left: 3px solid var(--primary); }
+.stat.alert { border-left-color: var(--alert); }
+.stat.warn { border-left-color: var(--warn); }
+.stat b { display: block; font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1.1; margin-bottom: 2px; }
+.stat span { font-size: 12px; color: var(--ink2); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11.5px; color: var(--ink2); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--rule); background: var(--panel2); text-transform: uppercase; letter-spacing: 0.02em; }
+td { padding: 8px 10px; border-bottom: 1px solid var(--rule2); vertical-align: top; }
+tbody tr:hover { background: var(--panel2); }
+tbody tr.clickable { cursor: pointer; }
+td.num, th.num { text-align: right; font-family: var(--mono); }
+
+.tag { display: inline-block; font-size: 10.5px; padding: 2px 6px; border: 1px solid var(--rule); background: var(--panel2); border-radius: 2px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; }
+.tag.QEBUL_GOZLEYEN { border-color: #8A6FA8; background: #F3EFF8; color: #573B75; }
+.tag.QEYDIYYATDA { border-color: #5B7C99; background: #EEF4F8; color: #2C4A66; }
+.tag.ISTINTAQDA { border-color: var(--warn); background: var(--warn-l); color: var(--warn); }
+.tag.CEZACEKEN { border-color: var(--primary); background: var(--primary-l); color: var(--primary-d); }
+.tag.KOCURULEN { border-color: #3C6E9F; background: #EBF3FA; color: #1D4B75; }
+.tag.ARXIVDE { border-color: var(--ink3); background: #EFEFEF; color: var(--ink2); }
+
+.kv { display: grid; grid-template-columns: 200px 1fr; gap: 0; font-size: 13px; }
+.kv dt { padding: 6px 0; color: var(--ink2); border-bottom: 1px solid var(--rule2); }
+.kv dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--rule2); font-weight: 500; }
+.kv dd.calc { background: var(--primary-l); padding-left: 8px; margin-left: -8px; }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.toolbar input, .toolbar select { padding: 6px 10px; border: 1px solid var(--rule); background: #fff; border-radius: 2px; font-size: 12.5px; }
+
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; background: var(--panel); }
+.tabs button { padding: 9px 14px; background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; color: var(--ink2); font-size: 13px; font-weight: 500; }
+.tabs button.on { color: var(--ink); border-bottom-color: var(--primary); font-weight: 600; background: var(--panel2); }
+
+/* STATUS FILTER CARDS (YENİ BÖLMƏLƏR) */
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.status-card { background: var(--panel); border: 1px solid var(--rule); padding: 12px 14px; border-radius: 3px; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; gap: 4px; border-top: 3px solid var(--rule); }
+.status-card:hover { border-color: var(--primary); background: var(--panel2); }
+.status-card.active { border-color: var(--primary); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+.status-card.s-ALL { border-top-color: var(--ink); }
+.status-card.s-CEZACEKEN { border-top-color: var(--primary); }
+.status-card.s-ISTINTAQDA { border-top-color: var(--warn); }
+.status-card.s-KOCURULEN { border-top-color: #3C6E9F; }
+.status-card.s-QEBUL_GOZLEYEN { border-top-color: #8A6FA8; }
+.status-card.s-ARXIVDE { border-top-color: var(--ink3); }
+.status-card .st-title { font-size: 11px; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.status-card .st-count { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+
+/* VISUAL CHARTS FOR REPORTING */
+.chart-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 12.5px; }
+.chart-label { width: 190px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chart-bar-bg { flex: 1; background: var(--rule2); height: 18px; border-radius: 3px; overflow: hidden; position: relative; }
+.chart-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.5s ease; }
+.chart-val { width: 70px; font-family: var(--mono); font-size: 12px; text-align: right; font-weight: 600; }
+
+.recordhead { background: var(--panel); border: 1px solid var(--rule); border-left: 4px solid var(--primary); padding: 14px 18px; margin-bottom: 16px; display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.recordhead.s-QEBUL_GOZLEYEN { border-left-color: #8A6FA8; }
+.recordhead.s-QEYDIYYATDA { border-left-color: #5B7C99; }
+.recordhead.s-ISTINTAQDA { border-left-color: var(--warn); }
+.recordhead.s-CEZACEKEN { border-left-color: var(--primary); }
+.recordhead.s-KOCURULEN { border-left-color: #3C6E9F; }
+.recordhead.s-ARXIVDE { border-left-color: var(--ink3); }
+
+/* MODALS */
+.overlay { position: fixed; inset: 0; background: rgba(12,16,14,.6); display: grid; place-items: center; z-index: 100; padding: 20px; }
+.modal { background: var(--panel); border: 1px solid var(--rule); width: 100%; max-width: 650px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.modal.wide { max-width: 950px; }
+.modal > header { padding: 12px 18px; border-bottom: 1px solid var(--rule2); display: flex; align-items: center; background: var(--panel2); }
+.modal > header h3 { font-size: 14.5px; }
+.modal > header .x { margin-left: auto; background: none; border: 0; font-size: 18px; cursor: pointer; color: var(--ink2); line-height: 1; }
+.modal .body { padding: 18px; overflow-y: auto; }
+.modal > footer { padding: 10px 18px; border-top: 1px solid var(--rule2); display: flex; gap: 8px; justify-content: flex-end; background: var(--panel2); }
+
+/* SIGNATURE & DOCUMENTS */
+.seal { width: 130px; height: 130px; border-radius: 50%; border: 2px solid var(--seal); color: var(--seal); display: grid; place-items: center; text-align: center; padding: 6px; transform: rotate(-6deg); opacity: .95; flex: 0 0 auto; position: relative; background: #fff; }
+.seal:before { content: ""; position: absolute; inset: 4px; border: 1px solid var(--seal); border-radius: 50%; }
+.seal .in { font-size: 8.5px; line-height: 1.25; font-family: var(--mono); letter-spacing: 0.02em; }
+.seal .in b { display: block; font-size: 9.5px; margin: 2px 0; color: var(--primary-d); }
+
+.docsheet { background: #fff; border: 1px solid var(--rule); padding: 40px 48px; font-size: 13px; line-height: 1.6; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+.docsheet .dh { text-align: center; border-bottom: 1.5px solid var(--ink); padding-bottom: 10px; margin-bottom: 16px; }
+.docsheet .dh .org { font-weight: 600; font-size: 13px; }
+.docsheet .dh .unit { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+.docsheet .no { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--ink2); margin-bottom: 14px; }
+.docsheet h4 { font-size: 14px; text-align: center; margin: 16px 0; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.toast { position: fixed; right: 20px; bottom: 20px; background: var(--ink); color: #fff; padding: 10px 14px; font-size: 12.5px; z-index: 200; border-left: 3px solid var(--primary); max-width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,.2); }
+.toast.err { border-left-color: var(--alert); }
+
+.blockcard { border: 1px solid var(--rule); margin-bottom: 14px; }
+.blockcard > header { padding: 8px 12px; background: var(--panel2); border-bottom: 1px solid var(--rule2); display: flex; gap: 10px; align-items: center; font-size: 12.5px; font-weight: 600; }
+.blockcard .bd { padding: 12px; }
+
+/* FILE UPLOAD DROPZONE */
+.upload-box { border: 2px dashed var(--rule); background: var(--panel2); padding: 20px; text-align: center; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+.upload-box:hover { border-color: var(--primary); background: var(--primary-l); }
+
+@keyframes simaSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN VIEW -->
+<div id="login">
+  <div class="brandside">
+    <div>
+      <div class="crest">PX</div>
+      <h1>Nəzarət Subyektlərinin Vahid Qeydiyyat Platforması</h1>
+      <p>Penitensiar Xidmət daxili şəbəkəsi (Intranet 24/7). Məhkumların vahid qeydiyyatı, elektron hökm qəbulu, Qurum Rəhbərinin elektron imzası, köçürmə təsdiqi və qeydiyyat sənədlərinin çapı.</p>
+      <div class="factgrid">
+        <div><b>18</b><span>Penitensiar Müəssisə</span></div>
+        <div><b>109</b><span>Məhkəmə İnteqrasiyası</span></div>
+        <div><b>100%</b><span>Qapalı Daxili Şəbəkə</span></div>
+        <div><b>SİMA</b><span>Rəqəmsal İmza</span></div>
+      </div>
+    </div>
+    <div style="font-size:11.5px; color:#7E8983;">Ədliyyə Nazirliyi Penitensiar Xidməti · Qurum Rəhbəri Modulu</div>
+  </div>
+  <div class="loginside">
+    <div class="loginbox">
+      <h2 style="font-size:20px; margin-bottom:4px;">Sistemə giriş</h2>
+      <p style="color:var(--ink2); font-size:12.5px; margin-bottom:20px;">Daxil olmaq üçün korporativ poçt ünvanınızı daxil edin.</p>
+      <div id="loginMsg"></div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="lg-user">Korporativ E-poçt</label>
+          <input id="lg-user" type="email" required placeholder="ad.soyad@justice.gov.az">
+          <div class="hint">Yalnız @justice.gov.az domeninə icazə verilir</div>
+        </div>
+        <div class="field">
+          <label for="lg-pass">Şifrə</label>
+          <input id="lg-pass" type="password" required placeholder="••••••••">
+          <div class="hint">Min 8 simvol (hərf, rəqəm, xüsusi simvol)</div>
+        </div>
+        <button type="submit" class="btn block" style="margin-top:10px;">Daxil ol</button>
+      </form>
+
+      <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--rule2);">
+        <div style="font-size:11.5px; color:var(--ink2); margin-bottom:8px; font-weight:600;">Sınaq Rol Profilləri (Avto-doldurma):</div>
+        <div class="grid g2" style="gap:6px;">
+          <button class="btn neutral sm" onclick="fillLogin('rehber@justice.gov.az')">👔 Qurum Rəhbəri (15-CÇM)</button>
+          <button class="btn neutral sm" onclick="fillLogin('qeydiyyat@justice.gov.az')">📝 Qeydiyyatçı (15-CÇM)</button>
+          <button class="btn neutral sm" onclick="fillLogin('admin@justice.gov.az')">⚙️ İnzibatçı (Admin)</button>
+          <button class="btn neutral sm" onclick="fillLogin('ombudsman@justice.gov.az')">👁️ Baxış İstifadəçisi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPLICATION SHELL -->
+<div id="app" class="hide">
+  <aside class="rail">
+    <div class="top">
+      <div class="crest">PX</div>
+      <div class="sys">PEN PRS PLATFORM</div>
+      <div class="unit" id="railUnit">---</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="bot">
+      <div class="who" id="railWho">---</div>
+      <div class="role" id="railRole">---</div>
+      <button class="btn ghost sm" style="margin-top:8px; color:#CFD6D1; border-color:rgba(255,255,255,.25); width:100%; justify-content:center;" onclick="logout()">Çıxış</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h2 id="pageTitle">Sistem Paneli</h2>
+      <div class="spacer"></div>
+      <span class="sess" id="sessClock">00:00:00</span>
+    </div>
+    <div class="content" id="view"></div>
+  </div>
+</div>
+
+<div id="modalHost"></div>
+<div id="toastHost"></div>
+
+<script>
+/* =====================================================================
+   PEN PRS — Qurum Rəhbəri Modulu, Fayl Yükləmə & Çap İnteqrasiyası
+   ===================================================================== */
+
+const SYSTEM_ROLES = {
+  ADMIN: { name: "İnzibatçı (Admin)", canEditRef: true, canInvite: true, canAcceptTransfer: true, canSign: true, canRegister: true },
+  REGISTRAR: { name: "Qeydiyyatçı", canEditRef: false, canInvite: false, canAcceptTransfer: false, canSign: false, canRegister: true },
+  UNIT_HEAD: { name: "Qurum Rəhbəri (Müəssisə Rəisi)", canEditRef: false, canInvite: false, canAcceptTransfer: true, canSign: true, canViewReports: true, canRegister: true },
+  READONLY: { name: "Baxış İstifadəçisi (Ombudsman / Xarici)", canEditRef: false, canInvite: false, canAcceptTransfer: false, canSign: false, isReadOnly: true }
+};
+
+const USERS = [
+  { email: "rehber@justice.gov.az", name: "Polkovnik Vüsal Hüseynov", role: "UNIT_HEAD", unitId: 14, pass: "User123!" },
+  { email: "qeydiyyat@justice.gov.az", name: "Elçin Məmmədov", role: "REGISTRAR", unitId: 14, pass: "User123!" },
+  { email: "admin@justice.gov.az", name: "Rəşad Əliyev", role: "ADMIN", unitId: 99, pass: "Admin123!" },
+  { email: "ombudsman@justice.gov.az", name: "Leyla Nəcəfova", role: "READONLY", unitId: 99, pass: "User123!" }
+];
+
+const UNITS = [
+  { id: 14, code: "CCM-15", name: "15 saylı Cəzaçəkmə Müəssisəsi", address: "Bakı ş., Nizami r-nu, Böyük-Şor" },
+  { id: 1, code: "CCM-01", name: "1 saylı Cəzaçəkmə Müəssisəsi", address: "Bakı ş., Nizami r-nu" },
+  { id: 2, code: "CCM-02", name: "2 saylı Cəzaçəkmə Müəssisəsi", address: "Bakı ş., Xəzar r-nu, Binə" },
+  { id: 18, code: "QOB", name: "Qobustan Həbsxanası", address: "Bakı ş., Qaradağ r-nu" },
+  { id: 99, code: "HQ", name: "Penitensiar Xidmət — Mərkəzi Aparat", address: "Bakı ş., Nizami r-nu" }
+];
+
+const FIN_SIMULATION_DB = {
+  "1ABC999": { fullname: "Qasımov İlqar Mehman oğlu", birthDate: "1988-04-12", gender: "Kişi", addressReg: "Bakı ş., Nəsimi r-nu, M.Müşfiq küç. 14", addressFact: "Bakı ş., Nəsimi r-nu, M.Müşfiq küç. 14" },
+  "7X8Y9Z0": { fullname: "Süleymanov Rəşid Teymur oğlu", birthDate: "1992-08-15", gender: "Kişi", addressReg: "Bakı ş., Yasamal r-nu, H.Zərdabi küç. 12", addressFact: "Bakı ş., Yasamal r-nu, H.Zərdabi küç. 12" },
+  "5K6M7N8": { fullname: "Əliyev Rauf Vaqif oğlu", birthDate: "1995-11-20", gender: "Kişi", addressReg: "Sumqayıt ş., 4-cü mkr, ev 18, m.12", addressFact: "Bakı ş., Xətai r-nu, Q.Qarayev pr. 45" },
+  "3D4E5F6": { fullname: "Məmmədov Elnur Zaur oğlu", birthDate: "1990-03-05", gender: "Kişi", addressReg: "Gəncə ş., Atatürk pr. 88", addressFact: "Gəncə ş., Atatürk pr. 88" },
+  "9K8L7M6": { fullname: "Həsənov Tural Anar oğlu", birthDate: "1987-09-30", gender: "Kişi", addressReg: "Şəki ş., M.Ə.Rəsulzadə küç. 5", addressFact: "Bakı ş., Sabunçu r-nu" },
+  "4P5Q6R7": { fullname: "Hüseynov Orxan Vüqar oğlu", birthDate: "1993-01-18", gender: "Kişi", addressReg: "Mingəçevir ş., N.Nərimanov küç. 22", addressFact: "Mingəçevir ş., N.Nərimanov küç. 22" }
+};
+
+const STATUS_LABELS = {
+  ALL: "Bütün Məhkumlar",
+  CEZACEKEN: "Cəzaçəkən",
+  ISTINTAQDA: "İstintaq Təcridxanasında",
+  KOCURULEN: "Köçürülən (Tranzit)",
+  QEBUL_GOZLEYEN: "Qəbul Gözləyən",
+  ARXIVDE: "Arxivdə"
+};
+function statusLabel(code) { return STATUS_LABELS[code] || code; }
+
+let state = {
+  user: null,
+  convicts: [],
+  eCourtQueue: [],
+  logs: [],
+  notifications: [],
+  activeStatusFilter: 'ALL', // Aktiv status filtri
+  activeReportTab: 'rep-overview', // Aktiv hesatab tabı
+  refs: {
+    articles: ["CM 177.2.2 (Oğurluq)", "CM 234.1 (Narkotik)", "CM 120.1 (Qəsdən adam öldürmə)", "CM 178.3.2 (Dələduzluq)", "CM 221.2 (Xuliqanlıq)"],
+    courts: ["Bakı Ağır Cinayətlər Məhkəməsi", "Sumqayıt Məhkəməsi", "Xətai Rayon Məhkəməsi", "Gəncə Ağır Cinayətlər Məhkəməsi"]
+  }
+};
+
+function initSeedData() {
+  state.eCourtQueue = [
+    {
+      id: "EM-2026-0091",
+      fin: "1ABC999",
+      fullname: "Qasımov İlqar Mehman oğlu",
+      birthDate: "1988-04-12",
+      courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+      judgeName: "Hakim Ə. İsmayılov",
+      decisionNo: "1-1024/2026",
+      decisionDate: "2026-03-01",
+      articles: ["CM 177.2.2 (Oğurluq)"],
+      sentenceYears: 4, sentenceMonths: 6, sentenceDays: 0,
+      detentionDays: 45
+    },
+    {
+      id: "EM-2026-0104",
+      fin: "2BAC888",
+      fullname: "Nəzirov Fuad Şahin oğlu",
+      birthDate: "1994-07-19",
+      courtName: "Sumqayıt Məhkəməsi",
+      judgeName: "Hakim V. Rəhimov",
+      decisionNo: "2-401/2026",
+      decisionDate: "2026-03-04",
+      articles: ["CM 221.2 (Xuliqanlıq)"],
+      sentenceYears: 2, sentenceMonths: 0, sentenceDays: 0,
+      detentionDays: 20
+    }
+  ];
+
+  state.convicts = [
+    {
+      id: "M-2025-0142",
+      fin: "7X8Y9Z0",
+      fullname: "Süleymanov Rəşid Teymur oğlu",
+      birthDate: "1992-08-15",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Bakı ş., Yasamal r-nu, H.Zərdabi küç. 12, m.45",
+      addressFact: "Bakı ş., Yasamal r-nu, H.Zərdabi küç. 12, m.45",
+      height: 178, weight: 75, eyeColor: "Qəhvəyi",
+      cases: [{
+        courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim R. Məmmədov",
+        prosecutor: "E. Qasımov",
+        lawyer: "A. Həsənov",
+        arrestBody: "Xətai RPİ",
+        articles: ["CM 234.1 (Narkotik)"],
+        sentenceYears: 3, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 60,
+        startDate: "2024-01-15"
+      }],
+      documents: [
+        { id: "D-101", title: "Məhkəmə Hökmü (PDF)", type: "E-MƏHKƏMƏ", uploadedAt: "2024-01-16", signed: true, signDetails: { signedBy: "Hakim R. Məmmədov", certId: "AZ-CERT-992112", timestamp: "2024-01-16 10:20" } },
+        { id: "D-102", title: "İlkin Müayinə Aktı.pdf", type: "TİBBİ", uploadedAt: "2024-01-18", signed: true, signDetails: { signedBy: "Dr. K. Əhmədov", certId: "MED-5512", timestamp: "2024-01-18 14:10" } }
+      ],
+      probationBracelet: { active: true, deviceCode: "BRAC-9921", status: "Nəzarətdə" }
+    },
+    {
+      id: "M-2026-0088",
+      fin: "5K6M7N8",
+      fullname: "Əliyev Rauf Vaqif oğlu",
+      birthDate: "1995-11-20",
+      gender: "Kişi",
+      unitId: 1,
+      targetUnitId: 14,
+      status: "KOCURULEN",
+      addressReg: "Sumqayıt ş., 4-cü mkr, ev 18, m.12",
+      addressFact: "Bakı ş., Xətai r-nu, Q.Qarayev pr. 45",
+      height: 182, weight: 80, eyeColor: "Qara",
+      cases: [{
+        courtName: "Sumqayıt Məhkəməsi",
+        judgeName: "Hakim B. Quliyev",
+        prosecutor: "N. Məmmədov",
+        lawyer: "C. Əliyev",
+        arrestBody: "Sumqayıt ŞBPİ",
+        articles: ["CM 178.3.2 (Dələduzluq)"],
+        sentenceYears: 5, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 90,
+        startDate: "2023-05-10"
+      }],
+      documents: [
+        { id: "D-201", title: "Yerdəyişmə Əmri (№ YD-2026/04)", type: "KÖÇÜRMƏ", uploadedAt: "2026-03-02", signed: false }
+      ]
+    },
+    {
+      id: "M-2026-0112",
+      fin: "3D4E5F6",
+      fullname: "Məmmədov Elnur Zaur oğlu",
+      birthDate: "1990-03-05",
+      gender: "Kişi",
+      unitId: 2,
+      targetUnitId: 14,
+      status: "KOCURULEN",
+      addressReg: "Gəncə ş., Atatürk pr. 88",
+      addressFact: "Gəncə ş., Atatürk pr. 88",
+      cases: [{
+        courtName: "Gəncə Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim Z. İbrahimov",
+        prosecutor: "S. Əkbərov",
+        lawyer: "E. Cavadov",
+        arrestBody: "Gəncə ŞBPİ",
+        articles: ["CM 120.1 (Qəsdən adam öldürmə)"],
+        sentenceYears: 9, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 120,
+        startDate: "2022-08-14"
+      }],
+      documents: [
+        { id: "D-301", title: "Köçürmə Qərarı.pdf", type: "KÖÇÜRMƏ", uploadedAt: "2026-03-05", signed: false }
+      ]
+    },
+    {
+      id: "M-2026-0205",
+      fin: "9K8L7M6",
+      fullname: "Həsənov Tural Anar oğlu",
+      birthDate: "1987-09-30",
+      gender: "Kişi",
+      unitId: 14,
+      status: "ISTINTAQDA",
+      targetUnitId: null,
+      addressReg: "Şəki ş., M.Ə.Rəsulzadə küç. 5",
+      addressFact: "Bakı ş., Sabunçu r-nu",
+      cases: [{
+        courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim T. Qasımov",
+        prosecutor: "R. Məmmədov",
+        lawyer: "V. Əhmədov",
+        arrestBody: "Sabunçu RPİ",
+        articles: ["CM 221.2 (Xuliqanlıq)"],
+        sentenceYears: 2, sentenceMonths: 6, sentenceDays: 0,
+        detentionDays: 15,
+        startDate: "2026-02-01"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2026-0310",
+      fin: "4P5Q6R7",
+      fullname: "Hüseynov Orxan Vüqar oğlu",
+      birthDate: "1993-01-18",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Mingəçevir ş., N.Nərimanov küç. 22",
+      addressFact: "Mingəçevir ş., N.Nərimanov küç. 22",
+      cases: [{
+        courtName: "Xətai Rayon Məhkəməsi",
+        judgeName: "Hakim F. Rüstəmov",
+        prosecutor: "H. Əliyev",
+        lawyer: "M. Nəcəfov",
+        arrestBody: "Xətai RPİ",
+        articles: ["CM 177.2.2 (Oğurluq)"],
+        sentenceYears: 3, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 40,
+        startDate: "2024-06-10"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2025-0421",
+      fin: "8M1N2O3",
+      fullname: "Nəcəfov Kamran Samir oğlu",
+      birthDate: "1989-12-04",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Bakı ş., Suraxanı r-nu, Əmircan qəs.",
+      addressFact: "Bakı ş., Suraxanı r-nu, Əmircan qəs.",
+      cases: [{
+        courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim N. Sultanov",
+        prosecutor: "A. Mirzəyev",
+        lawyer: "K. Quliyev",
+        arrestBody: "Suraxanı RPİ",
+        articles: ["CM 178.3.2 (Dələduzluq)"],
+        sentenceYears: 6, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 100,
+        startDate: "2023-01-10"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2024-0019",
+      fin: "6P7Q8R9",
+      fullname: "Quliyev Emin Fərid oğlu",
+      birthDate: "1991-05-22",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Lənkəran ş., Füzuli küç. 45",
+      addressFact: "Bakı ş., Binəqədi r-nu",
+      cases: [{
+        courtName: "Lənkəran Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim Ş. Əliyev",
+        prosecutor: "D. İbrahimov",
+        lawyer: "Z. Cavadov",
+        arrestBody: "Lənkəran ŞRPŞ",
+        articles: ["CM 234.1 (Narkotik)"],
+        sentenceYears: 4, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 50,
+        startDate: "2023-11-05"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2026-0511",
+      fin: "1Z2X3C4",
+      fullname: "Zeynalov Muraz Bəxtiyar oğlu",
+      birthDate: "1996-02-14",
+      gender: "Kişi",
+      unitId: 18,
+      targetUnitId: 14,
+      status: "KOCURULEN",
+      addressReg: "Bərdə r-nu, Qarasu qəs.",
+      addressFact: "Bərdə r-nu, Qarasu qəs.",
+      cases: [{
+        courtName: "Tərtər Rayon Məhkəməsi",
+        judgeName: "Hakim E. Həsənov",
+        prosecutor: "M. Babayev",
+        lawyer: "R. Məmmədov",
+        arrestBody: "Bərdə RPŞ",
+        articles: ["CM 221.2 (Xuliqanlıq)"],
+        sentenceYears: 2, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 30,
+        startDate: "2025-08-20"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2023-0055",
+      fin: "9A8B7C6",
+      fullname: "Rəhimov Bəhruz Vidadi oğlu",
+      birthDate: "1984-06-11",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Şirvan ş., M.Əsədov küç. 11",
+      addressFact: "Şirvan ş., M.Əsədov küç. 11",
+      cases: [{
+        courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim H. Cəfərov",
+        prosecutor: "S. Nəsirov",
+        lawyer: "Ö. Mustafayev",
+        arrestBody: "Şirvan ŞBPİ",
+        articles: ["CM 120.1 (Qəsdən adam öldürmə)"],
+        sentenceYears: 10, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 180,
+        startDate: "2020-04-12"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2022-0988",
+      fin: "3C4V5B6",
+      fullname: "İsmayılov Toğrul Polad oğlu",
+      birthDate: "1986-10-08",
+      gender: "Kişi",
+      unitId: 14,
+      status: "ARXIVDE",
+      targetUnitId: null,
+      addressReg: "Quba r-nu, Zardabi qəs.",
+      addressFact: "Bakı ş., Nəsimi r-nu",
+      cases: [{
+        courtName: "Sumqayıt Məhkəməsi",
+        judgeName: "Hakim C. Nəcəfov",
+        prosecutor: "İ. Hüseynov",
+        lawyer: "P. Şahbazov",
+        arrestBody: "Quba RPŞ",
+        articles: ["CM 177.2.2 (Oğurluq)"],
+        sentenceYears: 3, sentenceMonths: 0, sentenceDays: 0,
+        detentionDays: 45,
+        startDate: "2021-02-10"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2026-0601",
+      fin: "4N5M6L7",
+      fullname: "Mustafayev Teymur Rauf oğlu",
+      birthDate: "1997-03-25",
+      gender: "Kişi",
+      unitId: 14,
+      status: "ISTINTAQDA",
+      targetUnitId: null,
+      addressReg: "Bakı ş., Xətai r-nu, Y.Səfərov küç. 3",
+      addressFact: "Bakı ş., Xətai r-nu",
+      cases: [{
+        courtName: "Xətai Rayon Məhkəməsi",
+        judgeName: "Hakim G. Əhmədova",
+        prosecutor: "H. Sadıqov",
+        lawyer: "F. Qasımov",
+        arrestBody: "Xətai RPİ",
+        articles: ["CM 178.3.2 (Dələduzluq)"],
+        sentenceYears: 1, sentenceMonths: 8, sentenceDays: 0,
+        detentionDays: 10,
+        startDate: "2026-02-20"
+      }],
+      documents: []
+    },
+    {
+      id: "M-2025-0819",
+      fin: "7K8L9M0",
+      fullname: "Səfərov Vüsal Cavid oğlu",
+      birthDate: "1991-09-17",
+      gender: "Kişi",
+      unitId: 14,
+      status: "CEZACEKEN",
+      targetUnitId: null,
+      addressReg: "Qəbələ r-nu, Vandam qəs.",
+      addressFact: "Bakı ş., Nərimanov r-nu",
+      cases: [{
+        courtName: "Bakı Ağır Cinayətlər Məhkəməsi",
+        judgeName: "Hakim N. Əliyev",
+        prosecutor: "T. Rüstəmov",
+        lawyer: "B. İsmayılov",
+        arrestBody: "Nərimanov RPİ",
+        articles: ["CM 234.1 (Narkotik)"],
+        sentenceYears: 3, sentenceMonths: 6, sentenceDays: 0,
+        detentionDays: 60,
+        startDate: "2024-03-01"
+      }],
+      documents: []
+    }
+  ];
+
+  addLog("SİSTEM", "Sistem Qurum Rəhbəri idarəetmə rejimi ilə işə salındı.");
+}
+
+function addLog(action, detail) {
+  const log = {
+    id: Date.now(),
+    timestamp: new Date().toLocaleString("az-AZ"),
+    user: state.user ? state.user.email : "SYSTEM",
+    ip: "10.240.12.88",
+    action: action,
+    detail: detail
+  };
+  state.logs.unshift(log);
+}
+
+function fillLogin(email) {
+  document.getElementById("lg-user").value = email;
+  document.getElementById("lg-pass").value = "User123!";
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById("lg-user").value.trim().toLowerCase();
+  const pass = document.getElementById("lg-pass").value;
+  const msgEl = document.getElementById("loginMsg");
+
+  if (!email.endsWith("@justice.gov.az")) {
+    msgEl.innerHTML = `<div class="msg">Xəta: Giriş yalnız korporativ @justice.gov.az poçtu ilə mümkündür!</div>`;
+    return;
+  }
+
+  if (pass.length < 8) {
+    msgEl.innerHTML = `<div class="msg">Xəta: Şifrə minimum 8 simvol olmalıdır!</div>`;
+    return;
+  }
+
+  const user = USERS.find(u => u.email === email);
+  if (!user) {
+    msgEl.innerHTML = `<div class="msg">Xəta: İstifadəçi tapılmadı!</div>`;
+    return;
+  }
+
+  state.user = user;
+  addLog("GİRİŞ", `İstifadəçi daxil oldu: ${user.email} (${user.role})`);
+  
+  document.getElementById("login").classList.add("hide");
+  document.getElementById("app").classList.remove("hide");
+
+  initApp();
+  showToast(`Xoş gəldiniz, ${user.name}`);
+}
+
+function logout() {
+  addLog("ÇIXIŞ", `İstifadəçi sistemdən çıxdı: ${state.user.email}`);
+  state.user = null;
+  document.getElementById("app").classList.add("hide");
+  document.getElementById("login").classList.remove("hide");
+}
+
+function initApp() {
+  const roleObj = SYSTEM_ROLES[state.user.role];
+  const unitObj = UNITS.find(u => u.id === state.user.unitId);
+
+  document.getElementById("railWho").innerText = state.user.name;
+  document.getElementById("railRole").innerText = roleObj.name;
+  document.getElementById("railUnit").innerText = unitObj ? unitObj.name : "Mərkəzi Aparat";
+
+  renderNav();
+  generateNotifications();
+  navigate('dashboard');
+
+  setInterval(() => {
+    document.getElementById("sessClock").innerText = new Date().toLocaleTimeString("az-AZ");
+  }, 1000);
+}
+
+function renderNav() {
+  const nav = document.getElementById("nav");
+  const role = state.user.role;
+  const pendingECourtCount = state.eCourtQueue.length;
+  const pendingTransfersCount = state.convicts.filter(c => c.status === 'KOCURULEN' && c.targetUnitId === state.user.unitId).length;
+
+  let html = `
+    <button id="nav-dashboard" onclick="navigate('dashboard')"><span>📊</span> Analitika & Hesabatlıq</button>
+    <button id="nav-convicts" onclick="navigate('convicts')"><span>👥</span> Məhkumlar Reyestri</button>
+  `;
+
+  if (role === 'REGISTRAR' || role === 'UNIT_HEAD' || role === 'ADMIN') {
+    html += `<button id="nav-ecourt" onclick="navigate('ecourt')"><span>⚖️</span> e-Məhkəmə Növbəsi ${pendingECourtCount > 0 ? `<span class="badge">${pendingECourtCount}</span>` : ''}</button>`;
+  }
+
+  if (role === 'UNIT_HEAD' || role === 'ADMIN') {
+    html += `<button id="nav-transfers" onclick="navigate('transfers')"><span>🔄</span> Köçürmə Təsdiqləri ${pendingTransfersCount > 0 ? `<span class="badge">${pendingTransfersCount}</span>` : ''}</button>`;
+  }
+
+  html += `<button id="nav-external" onclick="navigate('external')"><span>🔍</span> Kənar Sistemlər (İAMAS/DİN)</button>`;
+
+  if (role === 'ADMIN') {
+    html += `
+      <div class="grouplabel">İnzibatçılıq</div>
+      <button id="nav-users" onclick="navigate('users')"><span>👤</span> İstifadəçilər və Rollar</button>
+      <button id="nav-logs" onclick="navigate('logs')"><span>📜</span> Sistem Loqları (Audit)</button>
+    `;
+  }
+
+  nav.innerHTML = html;
+}
+
+function navigate(viewName, param = null) {
+  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("on"));
+  const btn = document.getElementById(`nav-${viewName}`);
+  if (btn) btn.classList.add("on");
+
+  addLog("NAVİQASİYA", `Bölməyə keçid: ${viewName}`);
+
+  const view = document.getElementById("view");
+  if (viewName === 'dashboard') renderDashboardView(view);
+  else if (viewName === 'convicts') renderConvictsView(view);
+  else if (viewName === 'profile') renderConvictProfileView(view, param);
+  else if (viewName === 'ecourt') renderECourtView(view);
+  else if (viewName === 'transfers') renderTransfersView(view);
+  else if (viewName === 'external') renderExternalQueryView(view);
+  else if (viewName === 'logs') renderLogsView(view);
+  else if (viewName === 'users') renderUsersView(view);
+}
+
+function calculateConvictMath(c) {
+  if (!c.cases || c.cases.length === 0) return { totalCourtDays: 0, detentionDays: 0, effectiveTotalDays: 0, servedDays: 0, remainingDays: 0, percent: 0 };
+
+  let totalCourtDays = 0;
+  let totalDetentionDays = 0;
+
+  c.cases.forEach(cs => {
+    totalCourtDays += (cs.sentenceYears * 365) + (cs.sentenceMonths * 30) + (cs.sentenceDays || 0);
+    totalDetentionDays += cs.detentionDays || 0;
+  });
+
+  const effectiveTotalDays = Math.max(0, totalCourtDays - totalDetentionDays);
+  const startDate = new Date(c.cases[0].startDate);
+  const now = new Date();
+  const diffTime = Math.abs(now - startDate);
+  const servedDays = Math.min(effectiveTotalDays, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  const remainingDays = Math.max(0, effectiveTotalDays - servedDays);
+  const percent = effectiveTotalDays > 0 ? Math.min(100, Math.round((servedDays / effectiveTotalDays) * 100)) : 0;
+
+  return { totalCourtDays, detentionDays: totalDetentionDays, effectiveTotalDays, servedDays, remainingDays, percent };
+}
+
+function generateNotifications() {
+  state.notifications = [];
+  state.convicts.forEach(c => {
+    if (c.unitId === state.user.unitId && c.status === 'CEZACEKEN') {
+      const math = calculateConvictMath(c);
+      if (math.percent >= 75) {
+        state.notifications.push({
+          id: Date.now() + Math.random(),
+          convictId: c.id,
+          title: "Cəza Müddəti Xəbərdarlığı (%75 Tamamlanıb)",
+          desc: `${c.fullname} — Cəza müddətinin 3/4 hissəsini çəkmişdir. Qalıq: ${math.remainingDays} gün.`,
+          type: "XƏBƏRDARLIQ"
+        });
+      }
+    }
+  });
+}
+
+/* VIEW 1: YENİLENMİŞ VƏ ZƏNGİNLƏŞDİRİLMİŞ DASHBOARD / HESABATLIO MODULU */
+function renderDashboardView(container) {
+  document.getElementById("pageTitle").innerText = "Genişləndirilmiş Analitik Panel və Hesabatlıq Моdulu";
+
+  const myUnitId = state.user.unitId;
+  const list = state.convicts.filter(c => c.unitId === myUnitId || c.targetUnitId === myUnitId || state.user.role === 'ADMIN');
+  
+  const totalAll = list.length;
+  const totalServing = list.filter(c => c.status === 'CEZACEKEN').length;
+  const totalDetention = list.filter(c => c.status === 'ISTINTAQDA').length;
+  const totalTransfers = list.filter(c => c.status === 'KOCURULEN').length;
+  const totalArchived = list.filter(c => c.status === 'ARXIVDE').length;
+
+  // Cəzanın 75%-ni bitirənlər (UDONamizədləri)
+  const udoCandidates = list.filter(c => c.status === 'CEZACEKEN' && calculateConvictMath(c).percent >= 75);
+
+  let html = `
+    <!-- ƏSAS KPI KARDLAR -->
+    <div class="grid g4" style="margin-bottom:20px;">
+      <div class="stat">
+        <b>${totalAll}</b>
+        <span>Ümumi Qeydiyyatda Olan Kontingent</span>
+      </div>
+      <div class="stat">
+        <b>${totalServing}</b>
+        <span>Cəzaçəkən Məhkumlar</span>
+      </div>
+      <div class="stat warn">
+        <b>${totalDetention}</b>
+        <span>İstintaq Təcridxanasında</span>
+      </div>
+      <div class="stat alert">
+        <b>${totalTransfers}</b>
+        <span>Tranzit / Köçürülənlər</span>
+      </div>
+    </div>
+
+    <!-- HESABAT TABLARI -->
+    <div class="tabs">
+      <button class="${state.activeReportTab === 'rep-overview' ? 'on' : ''}" onclick="switchReportTab('rep-overview', this)">📊 Ümumi Analitik İcmal</button>
+      <button class="${state.activeReportTab === 'rep-articles' ? 'on' : ''}" onclick="switchReportTab('rep-articles', this)">⚖️ Maddələr və Cəza Paylanması</button>
+      <button class="${state.activeReportTab === 'rep-risk' ? 'on' : ''}" onclick="switchReportTab('rep-risk', this)">🚨 Cəza Müddəti & UDO Namizədləri (${udoCandidates.length})</button>
+      <button class="${state.activeReportTab === 'rep-export' ? 'on' : ''}" onclick="switchReportTab('rep-export', this)">📥 Rəsmi Çap & İxrac</button>
+    </div>
+
+    <!-- TAB 1: ÜMUMİ ANALİTİK İCMAL -->
+    <div id="rep-overview" class="${state.activeReportTab === 'rep-overview' ? '' : 'hide'}">
+      <div class="grid g2" style="margin-bottom:16px;">
+        <div class="panel">
+          <header><h3>📈 Statuslar Üzrə Kontingent Bölgüsü</h3></header>
+          <div class="body">
+            <div class="chart-row">
+              <div class="chart-label">Cəzaçəkən Məhkumlar</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${totalAll ? (totalServing/totalAll*100) : 0}%; background:var(--primary);"></div></div>
+              <div class="chart-val">${totalServing} nəfər</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">İstintaq Təcridxanası</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${totalAll ? (totalDetention/totalAll*100) : 0}%; background:var(--warn);"></div></div>
+              <div class="chart-val">${totalDetention} nəfər</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Köçürülən (Tranzit)</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${totalAll ? (totalTransfers/totalAll*100) : 0}%; background:#3C6E9F;"></div></div>
+              <div class="chart-val">${totalTransfers} nəfər</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Arxivdə Olanlar</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${totalAll ? (totalArchived/totalAll*100) : 0}%; background:var(--ink3);"></div></div>
+              <div class="chart-val">${totalArchived} nəfər</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <header><h3>👥 Cins və Yaş Qrupları Üzrə Analiz</h3></header>
+          <div class="body">
+            <div class="chart-row">
+              <div class="chart-label">Gənc Məhkumlar (18 - 25 yaş)</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 25%; background:#2C4A66;"></div></div>
+              <div class="chart-val">25%</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Orta Yaş Qrupu (26 - 45 yaş)</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 60%; background:#1F5F55;"></div></div>
+              <div class="chart-val">60%</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Ahıl Məhkumlar (46+ yaş)</div>
+              <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 15%; background:#9A6B0F;"></div></div>
+              <div class="chart-val">15%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: MADDƏLƏR VƏ CƏZA PAYLANMASI -->
+    <div id="rep-articles" class="${state.activeReportTab === 'rep-articles' ? '' : 'hide'}">
+      <div class="panel">
+        <header><h3>⚖️ Cinayətlərin Təsnifatı Və Maddələr Üzrə Statistika</h3></header>
+        <div class="body">
+          <div class="chart-row">
+            <div class="chart-label">CM 234.1 (Narkotik Vasitələr)</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 38%; background:#8C2F1E;"></div></div>
+            <div class="chart-val">38% (Nisbətən yüksək)</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">CM 177 (Oğurluq)</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 28%; background:#1F5F55;"></div></div>
+            <div class="chart-val">28%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">CM 178 (Dələduzluq)</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 18%; background:#9A6B0F;"></div></div>
+            <div class="chart-val">18%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">CM 120 (Adam öldürmə)</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 10%; background:#3C6E9F;"></div></div>
+            <div class="chart-val">10%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">Digər Mədəllər</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 6%; background:var(--ink3);"></div></div>
+            <div class="chart-val">6%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: CƏZA MÜDDƏTİ VƏ UDO NAMİZƏDLƏRİ -->
+    <div id="rep-risk" class="${state.activeReportTab === 'rep-risk' ? '' : 'hide'}">
+      <div class="panel">
+        <header><h3>🚨 Cəzasının 3/4-dən Çoxunu Çəkmiş Məhkumlar (UDO Hüququ Yarananlar)</h3></header>
+        <div class="body" style="padding:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Məhkum FİN / ID</th>
+                <th>Adı, Soyadı</th>
+                <th>Müəssisə</th>
+                <th>Cəza Müddəti</th>
+                <th>Çəkilən Müddət (%)</th>
+                <th>Əməliyyat</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${udoCandidates.length === 0 ? '<tr><td colspan="6" style="text-align:center; padding:20px;">Hazırda cəzasının %75-ni tamamlamış məhkum yoxdur.</td></tr>' : ''}
+              ${udoCandidates.map(c => {
+                const math = calculateConvictMath(c);
+                return `
+                  <tr>
+                    <td class="mono"><b>${c.id}</b><br>${c.fin}</td>
+                    <td><b>${c.fullname}</b></td>
+                    <td>15 saylı CÇM</td>
+                    <td class="mono">${math.effectiveTotalDays} gün</td>
+                    <td>
+                      <b style="color:var(--primary);">${math.percent}%</b> (${math.servedDays} gün çəkilib)
+                      <div style="background:var(--rule2); height:4px; width:100px; margin-top:2px;"><div style="background:var(--primary); height:100%; width:${math.percent}%;"></div></div>
+                    </td>
+                    <td>
+                      <button class="btn sm neutral" onclick="navigate('profile', '${c.id}')">Profilə Keç</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: HESABAT İXRAC PANALİ -->
+    <div id="rep-export" class="${state.activeReportTab === 'rep-export' ? '' : 'hide'}">
+      <div class="panel">
+        <header><h3>📥 Rəsmi Statistika Və Hesabat Fayllarının Hazırlanması</h3></header>
+        <div class="body">
+          <p style="color:var(--ink2);">Sistemdəki real-vaxt göstəricilərini rəsmi hesabat formatında ixrac edə bilərsiniz.</p>
+          <div style="display:flex; gap:12px; margin-top:16px;">
+            <button class="btn neutral" onclick="showToast('Excel formatında hesabat yükləndi (Simulyasiya)')">📊 Excel İxrac Et (.XLSX)</button>
+            <button class="btn neutral" onclick="showToast('PDF Analitik xülasə formalaşdırıldı (Simulyasiya)')">📄 PDF Hesabat Yüklə</button>
+            <button class="btn" onclick="window.print()">🖨️ Ekranı Birbaşa Çap Et</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function switchReportTab(tabId, btn) {
+  state.activeReportTab = tabId;
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+
+  ['rep-overview', 'rep-articles', 'rep-risk', 'rep-export'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hide");
+  });
+
+  const target = document.getElementById(tabId);
+  if (target) target.classList.remove("hide");
+}
+
+/* VIEW 2: YENİLENMİŞ MƏHKUMLAR REYESTRİ (STATUSLARA GÖRƏ BÖLMƏLƏR VƏ KARDLAR) */
+function renderConvictsView(container) {
+  document.getElementById("pageTitle").innerText = "Məhkumların Vahid Reyestri (Statuslar üzrə Bölgü)";
+
+  const myUnitId = state.user.unitId;
+  const list = state.convicts;
+
+  // Sayğaclar
+  const counts = {
+    ALL: list.length,
+    CEZACEKEN: list.filter(c => c.status === 'CEZACEKEN').length,
+    ISTINTAQDA: list.filter(c => c.status === 'ISTINTAQDA').length,
+    KOCURULEN: list.filter(c => c.status === 'KOCURULEN').length,
+    QEBUL_GOZLEYEN: list.filter(c => c.status === 'QEBUL_GOZLEYEN').length,
+    ARXIVDE: list.filter(c => c.status === 'ARXIVDE').length
+  };
+
+  let html = `
+    <!-- STATUSLAR ÜZRƏ VİZUAL KARDLAR VƏ FİLTRLƏR (BÖLMƏLƏR) -->
+    <div class="status-grid">
+      <div class="status-card s-ALL ${state.activeStatusFilter === 'ALL' ? 'active' : ''}" onclick="setConvictStatusFilter('ALL')">
+        <span class="st-title">🌐 Bütün Məhkumlar</span>
+        <span class="st-count">${counts.ALL}</span>
+      </div>
+      <div class="status-card s-CEZACEKEN ${state.activeStatusFilter === 'CEZACEKEN' ? 'active' : ''}" onclick="setConvictStatusFilter('CEZACEKEN')">
+        <span class="st-title">⛓️ Cəzaçəkənlər</span>
+        <span class="st-count">${counts.CEZACEKEN}</span>
+      </div>
+      <div class="status-card s-ISTINTAQDA ${state.activeStatusFilter === 'ISTINTAQDA' ? 'active' : ''}" onclick="setConvictStatusFilter('ISTINTAQDA')">
+        <span class="st-title">⚖️ İstintaqda</span>
+        <span class="st-count">${counts.ISTINTAQDA}</span>
+      </div>
+      <div class="status-card s-KOCURULEN ${state.activeStatusFilter === 'KOCURULEN' ? 'active' : ''}" onclick="setConvictStatusFilter('KOCURULEN')">
+        <span class="st-title">🔄 Köçürülənlər (Tranzit)</span>
+        <span class="st-count">${counts.KOCURULEN}</span>
+      </div>
+      <div class="status-card s-ARXIVDE ${state.activeStatusFilter === 'ARXIVDE' ? 'active' : ''}" onclick="setConvictStatusFilter('ARXIVDE')">
+        <span class="st-title">📦 Arxivdə Olanlar</span>
+        <span class="st-count">${counts.ARXIVDE}</span>
+      </div>
+    </div>
+
+    <!-- AXTARIŞ VƏ ƏMƏLİYYAT PANALİ -->
+    <div class="toolbar">
+      <input type="text" id="srch" placeholder="FİN, Ad, Soyad ilə axtarış..." oninput="filterConvictsTable()" style="width:280px;">
+      <span style="font-size:12px; color:var(--ink2);">Cari Seçim: <b>${statusLabel(state.activeStatusFilter)}</b></span>
+      <div style="margin-left:auto;">
+        ${SYSTEM_ROLES[state.user.role].canRegister ? `<button class="btn sm" onclick="openNewConvictModal()">+ Yeni Məhkum Qeydiyyatı</button>` : ''}
+      </div>
+    </div>
+
+    <!-- REYESTR CƏDVƏLİ -->
+    <div class="panel">
+      <div class="body" style="padding:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Məhkum ID / FİN</th>
+              <th>Adı, Soyadı, Ata Adı</th>
+              <th>Cins / Yaş</th>
+              <th>Status</th>
+              <th>Aydınlaşdırılan Qurum</th>
+              <th>Cəza Müddəti</th>
+              <th>Əməliyyat</th>
+            </tr>
+          </thead>
+          <tbody id="convictsTbody">
+            ${renderConvictRows(getFilteredConvictsList())}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function setConvictStatusFilter(status) {
+  state.activeStatusFilter = status;
+  // Yenidən render edək
+  const view = document.getElementById("view");
+  renderConvictsView(view);
+}
+
+function getFilteredConvictsList() {
+  const query = document.getElementById("srch") ? document.getElementById("srch").value.toLowerCase() : "";
+  const status = state.activeStatusFilter;
+
+  return state.convicts.filter(c => {
+    const matchQ = c.fullname.toLowerCase().includes(query) || (c.fin && c.fin.toLowerCase().includes(query)) || c.id.toLowerCase().includes(query);
+    const matchS = (status === 'ALL') || (c.status === status);
+    return matchQ && matchS;
+  });
+}
+
+function filterConvictsTable() {
+  document.getElementById("convictsTbody").innerHTML = renderConvictRows(getFilteredConvictsList());
+}
+
+function renderConvictRows(list) {
+  if (list.length === 0) return `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--ink2);">Bu bölmədə məhkum tapılmadı.</td></tr>`;
+  return list.map(c => {
+    const unit = UNITS.find(u => u.id === c.unitId);
+    const targetUnit = UNITS.find(u => u.id === c.targetUnitId);
+    const math = calculateConvictMath(c);
+    return `
+      <tr class="clickable" onclick="navigate('profile', '${c.id}')">
+        <td class="mono"><b>${c.id}</b><br><small style="color:var(--ink3);">${c.fin || 'FİN-Yoxdur'}</small></td>
+        <td><b>${c.fullname}</b></td>
+        <td>${c.gender || 'Kişi'}</td>
+        <td><span class="tag ${c.status}">${statusLabel(c.status)}</span></td>
+        <td>
+          ${c.status === 'KOCURULEN' ? `${unit ? unit.code : '—'} ➔ <b style="color:var(--primary);">${targetUnit ? targetUnit.code : '—'}</b>` : (unit ? unit.code : '—')}
+        </td>
+        <td>
+          <div class="mono" style="font-size:12px;">${math.servedDays} / ${math.effectiveTotalDays} gün (%${math.percent})</div>
+          <div style="background:var(--rule2); height:4px; width:100px; margin-top:3px;"><div style="background:var(--primary); height:100%; width:${math.percent}%;"></div></div>
+        </td>
+        <td>
+          <button class="btn neutral sm" onclick="event.stopPropagation(); navigate('profile', '${c.id}')">Profilə Bax</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* VIEW 3: PROFILE */
+function renderConvictProfileView(container, convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  if (!c) {
+    container.innerHTML = `<div class="msg">Məhkum tapılmadı!</div>`;
+    return;
+  }
+
+  document.getElementById("pageTitle").innerText = `Məhkum Profili: ${c.fullname}`;
+  const math = calculateConvictMath(c);
+  const unit = UNITS.find(u => u.id === c.unitId);
+
+  let html = `
+    <div class="recordhead s-${c.status}">
+      <div>
+        <h2>${c.fullname} <span class="tag ${c.status}">${statusLabel(c.status)}</span></h2>
+        <div class="sub">
+          FİN: <b class="mono">${c.fin || 'N/A'}</b> | Profil ID: <b class="mono">${c.id}</b> | Cari Qurum: <b>${unit ? unit.name : '—'}</b>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn sm neutral" onclick="openPrintRegistrationModal('${c.id}')">🖨️ Qeydiyyat Sənədini Çap Et</button>
+        ${c.status !== 'ARXIVDE' && (state.user.role === 'UNIT_HEAD' || state.user.role === 'ADMIN' || state.user.role === 'REGISTRAR') ? `<button class="btn neutral sm" onclick="openTransferModal('${c.id}')">🔄 Başqa Quruma Köçür</button>` : ''}
+        ${c.status !== 'ARXIVDE' && (state.user.role === 'UNIT_HEAD' || state.user.role === 'ADMIN') ? `<button class="btn danger sm" onclick="openArchiveModal('${c.id}')">📦 Arxivləşdir</button>` : ''}
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="on" onclick="switchProfileTab('p-info', this)">Şəxsi və Məhkəmə Məlumatları</button>
+      <button onclick="switchProfileTab('p-docs', this)">Sənədlər və Fayllar (${c.documents ? c.documents.length : 0})</button>
+      <button onclick="switchProfileTab('p-probation', this)">Probasiya və Qolbaq</button>
+    </div>
+
+    <div id="p-info">
+      <div class="grid g2" style="margin-bottom:16px;">
+        <div class="panel">
+          <header><h3>👤 Şəxsi Məlumatlar Bloku</h3></header>
+          <div class="body">
+            <dl class="kv">
+              <dt>Doğum Tarixi:</dt><dd>${c.birthDate || '—'}</dd>
+              <dt>Cinsi:</dt><dd>${c.gender || 'Kişi'}</dd>
+              <dt>Qeydiyyat Ünvanı:</dt><dd>${c.addressReg || '—'}</dd>
+              <dt>Faktiki Yaşayış Ünvanı:</dt><dd>${c.addressFact || '—'}</dd>
+              <dt>Fiziki Göstəricilər:</dt><dd>Boy: ${c.height || '175'} sm | Çəki: ${c.weight || '70'} kq | Göz: ${c.eyeColor || 'Qəhvəyi'}</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="panel">
+          <header><h3>⚖️ Cəza Hesablanması (Avtomatik Alqoritm)</h3></header>
+          <div class="body">
+            <dl class="kv">
+              <dt>Ümumi Məhkəmə Cəzası:</dt><dd class="mono">${math.totalCourtDays} gün</dd>
+              <dt>Həbsdə Keçən Müddət (Çıxılır):</dt><dd class="mono" style="color:var(--alert);">- ${math.detentionDays} gün (Avto-çıxılma)</dd>
+              <dt>Xalis Çəkilməli Cəza:</dt><dd class="mono calc"><b>${math.effectiveTotalDays} gün</b></dd>
+              <dt>Çəkilmiş Müddət:</dt><dd class="mono">${math.servedDays} gün</dd>
+              <dt>Qalıq Müddət:</dt><dd class="mono" style="color:var(--primary-d);"><b>${math.remainingDays} gün</b></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header>
+          <h3>📂 Məhkəmə və Cinayət İşləri</h3>
+        </header>
+        <div class="body">
+          ${c.cases.map((cs, idx) => `
+            <div class="blockcard">
+              <header>
+                <span>İş #${idx + 1}: ${cs.courtName} — ${cs.judgeName}</span>
+                <div class="spacer"></div>
+                <span class="mono" style="font-size:11.5px;">Başlanğıc: ${cs.startDate}</span>
+              </header>
+              <div class="bd">
+                <div class="grid g2">
+                  <div>
+                    <div><b>Cinayət Maddələri:</b> ${cs.articles.join(', ')}</div>
+                    <div style="font-size:12px; color:var(--ink2); margin-top:4px;">Tutan Orqan: ${cs.arrestBody} | Dövlət İttihamçısı: ${cs.prosecutor} | Vəkil: ${cs.lawyer}</div>
+                  </div>
+                  <div>
+                    <div><b>Məhkəmə Cəzası:</b> ${cs.sentenceYears} il, ${cs.sentenceMonths} ay, ${cs.sentenceDays || 0} gün</div>
+                    <div><b>İstintaq Həbs Müddəti:</b> ${cs.detentionDays} gün</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div id="p-docs" class="hide">
+      <div class="panel">
+        <header>
+          <h3>📄 Sənədlər Arxiv və Yükləmələr (File Upload)</h3>
+        </header>
+        <div class="body">
+          <div class="upload-box" onclick="document.getElementById('convictFileInput').click()">
+            <input type="file" id="convictFileInput" style="display:none;" onchange="handleFileUpload(event, '${c.id}')">
+            <div style="font-size:24px; color:var(--primary);">📁</div>
+            <div style="font-weight:600; margin-top:4px;">Kompüterdən Skan / Sənəd Yükləmək Üçün Bura Klikləyin (FileUpload)</div>
+            <div style="font-size:11.5px; color:var(--ink2);">PDF, JPG, PNG və ya DOCX formatları dəstəklənir</div>
+          </div>
+
+          <table style="margin-top:20px;">
+            <thead>
+              <tr>
+                <th>Sənəd Başlığı</th>
+                <th>Növ</th>
+                <th>Tarix</th>
+                <th>Elektron İmza (SİMA/ASAN)</th>
+                <th>Əməliyyat</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(!c.documents || c.documents.length === 0) ? '<tr><td colspan="5" style="text-align:center; padding:16px;">Sənəd yoxdur. Yuxarıdakı pəncərədən fayl yükləyin.</td></tr>' : ''}
+              ${(c.documents || []).map(d => `
+                <tr>
+                  <td><b>${d.title}</b></td>
+                  <td><span class="tag">${d.type}</span></td>
+                  <td class="mono">${d.uploadedAt}</td>
+                  <td>${d.signed ? `<span style="color:var(--primary); font-weight:600;">✓ İmzalanıb (${d.signDetails?.certId || 'SİMA'})</span>` : '<span style="color:var(--alert);">İmzasız</span>'}</td>
+                  <td>
+                    <button class="btn neutral sm" onclick="viewDocumentSheet('${d.title}', '${c.id}')">📄 Çap Et / Bax</button>
+                    ${!d.signed && (state.user.role === 'UNIT_HEAD' || state.user.role === 'ADMIN') ? `<button class="btn sm" onclick="openSimaSignModal('${d.id}')">✍️ SİMA ilə İmzala</button>` : ''}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-probation" class="hide">
+      <div class="panel">
+        <header><h3>📟 Probasiya Xidməti və Elektron Qolbaq İnteqrasiyası</h3></header>
+        <div class="body">
+          <dl class="kv">
+            <dt>Elektron Qolbaq Statusu:</dt><dd>${c.probationBracelet ? c.probationBracelet.status : 'Aktiv deyil'}</dd>
+            <dt>Cihaz Kodu:</dt><dd class="mono">${c.probationBracelet ? c.probationBracelet.deviceCode : '—'}</dd>
+            <dt>Təhvil Verən Qurum:</dt><dd>Ədliyyə Nazirliyi Probasiya Xidməti</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function switchProfileTab(tabId, btn) {
+  document.getElementById("p-info").classList.add("hide");
+  document.getElementById("p-docs").classList.add("hide");
+  document.getElementById("p-probation").classList.add("hide");
+
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+
+  document.getElementById(tabId).classList.remove("hide");
+}
+
+function handleFileUpload(event, convictId) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const c = state.convicts.find(item => item.id === convictId);
+  if (!c) return;
+
+  const newDoc = {
+    id: `D-${Date.now()}`,
+    title: file.name,
+    type: "YÜKLƏNMİŞ SƏNƏD",
+    uploadedAt: new Date().toISOString().split('T')[0],
+    signed: false
+  };
+
+  if (!c.documents) c.documents = [];
+  c.documents.unshift(newDoc);
+
+  addLog("FAYL YÜKLƏNDİ", `Məhkum profilinə yeni fayl yükləndi: ${file.name} (${c.id})`);
+  showToast(`Fayl uğurla yükləndi: ${file.name}`);
+  navigate('profile', convictId);
+}
+
+/* VIEW 4: e-COURT QUEUE */
+function renderECourtView(container) {
+  document.getElementById("pageTitle").innerText = "e-Məhkəmə Avtomatik İnteqrasiya Növbəsi";
+
+  let html = `
+    <div class="panel">
+      <header>
+        <h3>⚖️ Məhkəmələrdən Elektron Daxil Olmuş Qərarlar (Qəbul Gözləyən)</h3>
+      </header>
+      <div class="body" style="padding:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorğu ID / FİN</th>
+              <th>Məhkumun Adı, Soyadı</th>
+              <th>Məhkəmə / Hakim</th>
+              <th>Hökm Nömrəsi / Tarix</th>
+              <th>Cəza Müddəti</th>
+              <th>Əməliyyat</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.eCourtQueue.length === 0 ? '<tr><td colspan="6" style="text-align:center; padding:20px;">Növbədə elektron hökm yoxdur.</td></tr>' : ''}
+            ${state.eCourtQueue.map(item => `
+              <tr>
+                <td class="mono"><b>${item.id}</b><br>${item.fin}</td>
+                <td><b>${item.fullname}</b><br><small>${item.birthDate}</small></td>
+                <td>${item.courtName}<br><small style="color:var(--ink2);">${item.judgeName}</small></td>
+                <td class="mono">${item.decisionNo}<br>${item.decisionDate}</td>
+                <td>${item.sentenceYears} il ${item.sentenceMonths} ay (${item.detentionDays} gün həbs)</td>
+                <td>
+                  <button class="btn sm" onclick="acceptECourtConvict('${item.id}')">📥 Registrasiya Et (Qəbul)</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function acceptECourtConvict(eCourtId) {
+  const item = state.eCourtQueue.find(q => q.id === eCourtId);
+  if (!item) return;
+
+  const newConvict = {
+    id: `M-2026-0${Math.floor(100 + Math.random() * 900)}`,
+    fin: item.fin,
+    fullname: item.fullname,
+    birthDate: item.birthDate,
+    gender: "Kişi",
+    unitId: state.user.unitId,
+    status: "QEYDIYYATDA",
+    addressReg: "İAMAS üzrə avto-dəqiqləşdirilib",
+    addressFact: "İAMAS üzrə avto-dəqiqləşdirilib",
+    cases: [{
+      courtName: item.courtName,
+      judgeName: item.judgeName,
+      prosecutor: "Təyin olunub",
+      lawyer: "Təyin olunub",
+      arrestBody: "İstintaq Orqanı",
+      articles: item.articles,
+      sentenceYears: item.sentenceYears,
+      sentenceMonths: item.sentenceMonths,
+      sentenceDays: item.sentenceDays,
+      detentionDays: item.detentionDays,
+      startDate: new Date().toISOString().split('T')[0]
+    }],
+    documents: [{
+      id: `D-${Date.now()}`,
+      title: `e-Məhkəmə Hökmü #${item.decisionNo}`,
+      type: "E-MƏHKƏMƏ",
+      uploadedAt: new Date().toISOString().split('T')[0],
+      signed: true,
+      signDetails: { signedBy: item.judgeName, certId: "AZ-COURT-8821", timestamp: item.decisionDate }
+    }]
+  };
+
+  state.convicts.push(newConvict);
+  state.eCourtQueue = state.eCourtQueue.filter(q => q.id !== eCourtId);
+
+  addLog("E-MƏHKƏMƏ QƏBULU", `e-Məhkəmədən gələn hökm qəbul olundu: ${item.fullname} (${newConvict.id})`);
+  showToast("Məhkum e-Məhkəmə növbəsindən uğurla reyestrə daxil edildi.");
+  renderNav();
+  navigate('convicts');
+}
+
+/* VIEW 5: TRANSFERS APPROVAL */
+function renderTransfersView(container) {
+  document.getElementById("pageTitle").innerText = "Məhkum Köçürmə (Yerdəyişmə) Qəbul və İmzalanması";
+
+  const myUnitId = state.user.unitId;
+  const incomingTransfers = state.convicts.filter(c => c.status === 'KOCURULEN' && c.targetUnitId === myUnitId);
+
+  let html = `
+    <div class="panel">
+      <header>
+        <h3>🔄 Sizin Müəssisəyə Gələn Köçürmə Sorğuları (Qurum Rəhbəri Təsdiq və İmza Paneli)</h3>
+      </header>
+      <div class="body" style="padding:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Məhkum ID / FİN</th>
+              <th>Adı, Soyadı, Ata Adı</th>
+              <th>Mənşə Müəssisə</th>
+              <th>Təyinat Müəssisəsi</th>
+              <th>Qurum Rəhbərinin Əməliyyatı</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${incomingTransfers.length === 0 ? '<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--ink2);">Gözləyən köçürmə sorğusu yoxdur. Məhkum köçürmək üçün reyestrdən yerdəyişmə başladın.</td></tr>' : ''}
+            ${incomingTransfers.map(c => {
+              const fromUnit = UNITS.find(u => u.id === c.unitId);
+              const toUnit = UNITS.find(u => u.id === c.targetUnitId);
+              return `
+                <tr>
+                  <td class="mono"><b>${c.id}</b><br>${c.fin}</td>
+                  <td><b>${c.fullname}</b><br><small>${c.birthDate}</small></td>
+                  <td>${fromUnit ? fromUnit.name : '—'}</td>
+                  <td><b style="color:var(--primary);">${toUnit ? toUnit.name : '—'}</b></td>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <button class="btn sm" onclick="openAcceptAndSignModal('${c.id}')">✍️ Qəbul Et və SİMA ilə İmzala</button>
+                      <button class="btn neutral sm" onclick="openPrintRegistrationModal('${c.id}')">🖨️ Qeydiyyat Sənədi</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function openAcceptAndSignModal(convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  if (!c) return;
+
+  const html = `
+    <div class="overlay">
+      <div class="modal">
+        <header>
+          <h3>✍️ Qurum Rəhbəri Tərəfindən Yerdəyişmə Qəbulu və Rəqəmsal İmza</h3>
+          <button class="x" onclick="closeModal()">×</button>
+        </header>
+        <div class="body">
+          <div style="padding:12px; background:var(--panel2); border:1px solid var(--rule); margin-bottom:14px;">
+            <div>Məhkum: <b>${c.fullname}</b> (FİN: ${c.fin})</div>
+            <div style="font-size:12px; color:var(--ink2); margin-top:2px;">Təsdiq edən: <b>${state.user.name}</b> (Qurum Rəhbəri)</div>
+          </div>
+          <p style="font-size:12.5px;">Bu əməliyyatla məhkum yeni cəzaçəkmə müəssisəsinin kontingentinə daxil edilir, rəsmi <b>"Köçürmə və Qəbul Qərarı"</b> SİMA elektron imzası ilə təsdiqlənir.</p>
+        </div>
+        <footer>
+          <button class="btn neutral" onclick="closeModal()">İmtina</button>
+          <button class="btn" onclick="executeAcceptAndSign('${c.id}')">🔐 SİMA / ASAN İmza İlə Təsdiqlə</button>
+        </footer>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalHost").innerHTML = html;
+}
+
+function executeAcceptAndSign(convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  if (!c) return;
+
+  startSimaSigningProcess(`Köçürmə və Qəbul Qərarı (${c.fullname})`, (certId) => {
+    c.unitId = c.targetUnitId;
+    c.targetUnitId = null;
+    c.status = "CEZACEKEN";
+
+    const nowStr = new Date().toLocaleString("az-AZ");
+
+    if (!c.documents) c.documents = [];
+    c.documents.unshift({
+      id: `D-${Date.now()}`,
+      title: `Məhkum Qəbul və Qeydiyyat Qərarı (Təsdiqlənib)`,
+      type: "QEYDİYYAT SƏNƏDİ",
+      uploadedAt: new Date().toISOString().split('T')[0],
+      signed: true,
+      signDetails: {
+        signedBy: state.user.name + " (Qurum Rəhbəri)",
+        certId: certId,
+        timestamp: nowStr
+      }
+    });
+
+    addLog("KÖÇÜRMƏ TƏSDİQ OLUNDU", `Qurum Rəhbəri məhkumu qəbul etdi və SİMA ilə imzalandı: ${c.fullname} (${certId})`);
+    showToast("Məhkum qəbul edildi, SİMA ilə elektron imza başarıyla əlavə olundu!");
+    renderNav();
+    navigate('transfers');
+  });
+}
+
+function startSimaSigningProcess(title, onSuccessCallback) {
+  const simaCode = Math.floor(1000 + Math.random() * 9000);
+  const certId = "AZ-SIMA-" + Math.floor(100000 + Math.random() * 900000);
+
+  const html = `
+    <div class="overlay" id="simaOverlay">
+      <div class="modal" style="max-width:480px; text-align:center; border:2px solid #0F4C81;">
+        <header style="background:#0F4C81; color:#fff;">
+          <h3 style="color:#fff; display:flex; align-items:center; gap:8px;">
+            <span style="background:#fff; color:#0F4C81; font-weight:800; padding:2px 6px; border-radius:3px; font-family:var(--mono);">SİMA</span>
+            Rəqəmsal İmza Təsdiqləməsi
+          </h3>
+          <button class="x" style="color:#fff;" onclick="closeModal()">×</button>
+        </header>
+        <div class="body" style="padding:28px 20px;" id="simaModalContent">
+          <div id="simaStep1">
+            <div style="font-weight:600; font-size:14px; margin-bottom:6px; color:#14181D;">${title}</div>
+            <div style="color:var(--ink2); font-size:12px; margin-bottom:18px;">SİMA Mobil tətbiqinizə imzalama sorğusu göndərildi. Tətbiqdə görünən kodu təsdiqləyin.</div>
+
+            <div style="background:#F0F4F8; border:2px dashed #0F4C81; border-radius:8px; padding:16px; display:inline-block; margin-bottom:18px; width:100%;">
+              <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#5A635F; font-weight:600;">SİMA Təsdiq Kodu</div>
+              <div style="font-size:38px; font-weight:700; font-family:var(--mono); color:#0F4C81; letter-spacing:6px; margin-top:2px;">${simaCode}</div>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; color:var(--ink2); font-size:12px;">
+              <div style="border:3px solid #ccc; border-top:3px solid #0F4C81; border-radius:50%; width:20px; height:20px; animation: simaSpin 1s linear infinite;"></div>
+              <span>SİMA Mobil Tətbiqində təsdiq gözlənilir...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("modalHost").innerHTML = html;
+
+  setTimeout(() => {
+    const stepContainer = document.getElementById("simaModalContent");
+    if (!stepContainer) return;
+
+    stepContainer.innerHTML = `
+      <div style="padding:10px 0;">
+        <div style="font-size:48px; color:var(--primary); line-height:1; margin-bottom:10px;">✓</div>
+        <h3 style="color:var(--primary-d); margin-bottom:6px;">Rəqəmsal İmza Uğurla Əlavə Edildi!</h3>
+        <p style="font-size:12px; color:var(--ink2); margin-bottom:14px;">Sənəd SİMA Nəzarət Mərkəzi tərəfindən elektron olaraq möhürləndi.</p>
+        <div class="mono" style="font-size:11.5px; background:var(--primary-l); padding:8px; border:1px solid var(--rule); display:inline-block; text-align:left;">
+          Sertifikat ID: <b>${certId}</b><br>
+          İmzalayan: <b>${state.user.name}</b><br>
+          Tarix: <b>${new Date().toLocaleString("az-AZ")}</b>
+        </div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      closeModal();
+      if (onSuccessCallback) onSuccessCallback(certId);
+    }, 1200);
+  }, 2200);
+}
+
+/* QEYDİYYAT SƏNƏDİNİN ÇAP EDİLMƏSİ */
+function openPrintRegistrationModal(convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  if (!c) return;
+
+  const unit = UNITS.find(u => u.id === c.unitId) || UNITS[0];
+  const math = calculateConvictMath(c);
+
+  const html = `
+    <div class="overlay">
+      <div class="modal wide">
+        <header>
+          <h3>🖨️ Rəsmi Qeydiyyat Vərəqəsi / Qərarı (Çap Rejimi)</h3>
+          <button class="x" onclick="closeModal()">×</button>
+        </header>
+        <div class="body">
+          <div class="docsheet" id="printSheet">
+            <div class="dh">
+              <div class="org">AZƏRBAYCAN RESPUBLİKASI ƏDLİYYƏ NAZİRLİYİ</div>
+              <div class="unit">PENİTENSİAR XİDMƏT — ${unit.name.toUpperCase()}</div>
+            </div>
+            <div class="no">
+              <span>Qeydiyyat №: PX-REG-${c.id}</span>
+              <span>Tarix: ${new Date().toLocaleDateString('az-AZ')}</span>
+            </div>
+
+            <h4>MƏHKUMUN QEYDİYYAT VƏ UÇOT VƏRƏQƏSİ</h4>
+
+            <div style="margin-bottom:16px;">
+              <table style="border:1px solid var(--rule); width:100%;">
+                <tr>
+                  <td style="width:180px; font-weight:600;">Soyadı, Adı, Ata adı:</td>
+                  <td><b>${c.fullname}</b></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">FİN Kod:</td>
+                  <td class="mono"><b>${c.fin || 'Məlum deyil'}</b></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Doğum Tarixi:</td>
+                  <td>${c.birthDate || '—'}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Mənsub Müəssisə:</td>
+                  <td>${unit.name} (${unit.address})</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Cəza Müddəti:</td>
+                  <td>Çəkilməli xalis cəza: <b>${math.effectiveTotalDays} gün</b> (Çəkilən: ${math.servedDays} gün)</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Cari Status:</td>
+                  <td><b>${statusLabel(c.status)}</b></td>
+                </tr>
+              </table>
+            </div>
+
+            <p style="font-size:12px; margin-top:20px;">
+              Bu sənəd Penitensiar Xidmətin Vahid Qeydiyyat Platformasında təsdiqlənmiş və elektron reyestrə daxil edilmişdir. Qurum Rəhbərinin rəqəmsal SİMA imzası ilə təsdiq olunur.
+            </p>
+
+            <div style="margin-top:34px; display:flex; justify-content:space-between; align-items:flex-end;">
+              <div>
+                <div><b>Təsdiq Edən Qurum Rəhbəri:</b></div>
+                <div style="font-size:14px; font-weight:600; margin-top:2px;">${state.user.name}</div>
+                <div style="font-size:11px; color:var(--ink2);">Elektron İmza ID: AZ-SIMA-8891</div>
+              </div>
+              <div class="seal">
+                <div class="in">
+                  AZƏRBAYCAN RESPUBLİKASI<br>
+                  <b>PENİTENSİAR XİDMƏT</b><br>
+                  RƏQƏMSAL MÖHÜR<br>
+                  <b>SİMA TƏSDİQLİ</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <button class="btn neutral" onclick="printDocSheet()">🖨️ Çap Et (Print)</button>
+          <button class="btn" onclick="closeModal()">Bağla</button>
+        </footer>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalHost").innerHTML = html;
+}
+
+function printDocSheet() {
+  const content = document.getElementById("printSheet").outerHTML;
+  const printWindow = window.open('', '', 'width=900,height=700');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Sənəd Çapı</title>
+        <style>
+          body { font-family: sans-serif; padding:20px; }
+          .docsheet { border: 1px solid #ccc; padding: 30px; }
+          .dh { text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:15px; }
+          .no { display:flex; justify-content:space-between; margin-bottom:15px; font-family:monospace; }
+          h4 { text-align:center; }
+          table { width:100%; border-collapse:collapse; }
+          td { border:1px solid #ddd; padding:8px; }
+          .seal { border:2px solid #A8873E; width:120px; height:120px; border-radius:50%; text-align:center; display:flex; align-items:center; justify-content:center; }
+        </style>
+      </head>
+      <body>${content}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+
+/* VIEW 6: EXTERNAL LOOKUP */
+function renderExternalQueryView(container) {
+  document.getElementById("pageTitle").innerText = "Kənar Sistemlər üzrə Sorğu Pəncərəsi (İAMAS / ƏDRX / DİN)";
+
+  let html = `
+    <div class="panel">
+      <header><h3>🔍 FİN Kod üzrə İAMAS və ƏDRX Sorğusu</h3></header>
+      <div class="body">
+        <div class="toolbar">
+          <input type="text" id="iamasFin" placeholder="FİN Kod daxil edin (məs: 1ABC999)" style="width:280px; text-transform:uppercase;">
+          <button class="btn sm" onclick="executeIamasQuery()">İAMAS-dan Çək</button>
+        </div>
+        <div id="iamasResult" style="margin-top:16px;"></div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function executeIamasQuery() {
+  const fin = document.getElementById("iamasFin").value.trim().toUpperCase();
+  if (!fin) return;
+
+  addLog("XARİCİ SORĞU", `İAMAS/ƏDRX üzrə FİN sorğusu göndərildi: ${fin}`);
+
+  const match = FIN_SIMULATION_DB[fin] || {
+    fullname: "MƏMMƏDOV İLHAM HASAN OĞLU",
+    birthDate: "1985-05-14",
+    addressReg: "Bakı ş., Xətai r-nu",
+    addressFact: "Bakı ş., Xətai r-nu"
+  };
+
+  document.getElementById("iamasResult").innerHTML = `
+    <div style="background:var(--panel2); border:1px solid var(--rule); padding:16px;">
+      <div style="display:flex; gap:16px;">
+        <div style="width:100px; height:120px; background:#ccc; display:grid; place-items:center; font-size:11px; color:#555;">Biometrik Şəkil</div>
+        <div>
+          <h4>${match.fullname}</h4>
+          <dl class="kv" style="width:400px; margin-top:8px;">
+            <dt>Doğum Tarixi:</dt><dd>${match.birthDate}</dd>
+            <dt>Verən Orqan:</dt><dd>ASAN Xidmət #1</dd>
+            <dt>Qeydiyyat Ünvanı:</dt><dd>${match.addressReg}</dd>
+            <dt>Sərhəd Geçiş Qeydi (DİN):</dt><dd>Son çıxış: 12.10.2023 (Qayıdıb)</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* VIEW 7: LOGS */
+function renderLogsView(container) {
+  document.getElementById("pageTitle").innerText = "Sistem Audit Loqları (24/7 Tarixçə)";
+
+  let html = `
+    <div class="panel">
+      <header><h3>📜 Hər Bir Klik, Redaktə və Oxunma Detalları</h3></header>
+      <div class="body" style="padding:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Tarix / Saat</th>
+              <th>İstifadəçi</th>
+              <th>IP Ünvan</th>
+              <th>Əməliyyat</th>
+              <th>Detallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.logs.map(l => `
+              <tr>
+                <td class="mono">${l.timestamp}</td>
+                <td><b>${l.user}</b></td>
+                <td class="mono">${l.ip}</td>
+                <td><span class="tag">${l.action}</span></td>
+                <td>${l.detail}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+/* VIEW 8: USERS */
+function renderUsersView(container) {
+  document.getElementById("pageTitle").innerText = "İstifadəçilər və Multi-Qurum Rolları";
+
+  let html = `
+    <div class="panel">
+      <header>
+        <h3>👤 Sistem İstifadəçiləri (Qurum Rəhbəri və Əməkdaşlar)</h3>
+        <div class="spacer"></div>
+        <button class="btn sm" onclick="showToast('Yeni istifadəçi dəvəti korporativ poçta göndərildi.')">+ Dəvət Göndər</button>
+      </header>
+      <div class="body" style="padding:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>E-poçt</th>
+              <th>Ad, Soyad</th>
+              <th>Sistem Rolu</th>
+              <th>Mənsub Qurum</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${USERS.map(u => {
+              const unit = UNITS.find(un => un.id === u.unitId);
+              return `
+                <tr>
+                  <td><b>${u.email}</b></td>
+                  <td>${u.name}</td>
+                  <td><span class="tag">${SYSTEM_ROLES[u.role].name}</span></td>
+                  <td>${unit ? unit.name : 'Mərkəzi Aparat'}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+/* MODALS AND AUTO-FILL LOGIC */
+function closeModal() {
+  document.getElementById("modalHost").innerHTML = "";
+}
+
+function autoFillByFin(finValue) {
+  const cleanFin = finValue.trim().toUpperCase();
+  const infoSpan = document.getElementById("finLookupStatus");
+
+  if (!cleanFin) {
+    if (infoSpan) {
+      infoSpan.style.color = "var(--alert)";
+      infoSpan.innerText = "⚠️ Axtarış üçün əvvəlcə FİN kod daxil edin";
+    }
+    return;
+  }
+
+  if (infoSpan) {
+    infoSpan.style.color = "var(--ink2)";
+    infoSpan.innerText = "⏳ İAMAS/ƏDRX üzrə sorğu göndərilir...";
+  }
+
+  setTimeout(() => {
+    const data = FIN_SIMULATION_DB[cleanFin];
+    if (data) {
+      document.getElementById("ncFullname").value = data.fullname;
+      document.getElementById("ncBirth").value = data.birthDate;
+      if (document.getElementById("ncGender")) document.getElementById("ncGender").value = data.gender || "Kişi";
+      if (document.getElementById("ncAddressReg")) document.getElementById("ncAddressReg").value = data.addressReg || "";
+      if (document.getElementById("ncAddressFact")) document.getElementById("ncAddressFact").value = data.addressFact || "";
+
+      if (infoSpan) {
+        infoSpan.style.color = "var(--primary)";
+        infoSpan.innerText = "✓ İAMAS-dan avtomatik tapıldı və dolduruldu";
+      }
+    } else {
+      if (infoSpan) {
+        infoSpan.style.color = "var(--alert)";
+        infoSpan.innerText = "⚠️ FİN üzrə məlumat tapılmadı (Əl ilə daxil edin)";
+      }
+    }
+  }, 250);
+}
+
+function openNewConvictModal() {
+  const html = `
+    <div class="overlay">
+      <div class="modal wide">
+        <header>
+          <h3>+ Yeni Məhkum İlkin Qeydiyyatı</h3>
+          <button class="x" onclick="closeModal()">×</button>
+        </header>
+        <div class="body">
+          <form id="newConvictForm" onsubmit="handleSaveNewConvict(event)">
+            <div class="grid g3">
+              <div class="field">
+                <label>FİN Kod</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="ncFin" placeholder="məs: 1ABC999" style="text-transform:uppercase; font-weight:bold; flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault(); autoFillByFin(document.getElementById('ncFin').value);}">
+                  <button type="button" class="btn neutral sm" onclick="autoFillByFin(document.getElementById('ncFin').value)">🔍 Axtar</button>
+                </div>
+                <span id="finLookupStatus" class="hint" style="font-weight:600;">FİN daxil edib "Axtar" düyməsini basın</span>
+              </div>
+              <div class="field">
+                <label>Ad, Soyad, Ata Adı</label>
+                <input type="text" id="ncFullname" required placeholder="FİN üzrə avto-dolacaq">
+              </div>
+              <div class="field">
+                <label>Doğum Tarixi</label>
+                <input type="date" id="ncBirth" required>
+              </div>
+            </div>
+
+            <div class="grid g3" style="margin-top:10px;">
+              <div class="field">
+                <label>Cinsi</label>
+                <select id="ncGender">
+                  <option>Kişi</option>
+                  <option>Qadın</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Qeydiyyat Ünvanı</label>
+                <input type="text" id="ncAddressReg" placeholder="FİN üzrə avto-dolacaq">
+              </div>
+              <div class="field">
+                <label>Faktiki Ünvan</label>
+                <input type="text" id="ncAddressFact" placeholder="FİN üzrə avto-dolacaq">
+              </div>
+            </div>
+
+            <div class="grid g2" style="margin-top:10px;">
+              <div class="field">
+                <label>Məhkəmə Adı</label>
+                <select id="ncCourt">
+                  ${state.refs.courts.map(c => `<option>${c}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label>Cinayət Maddəsi</label>
+                <select id="ncArticle">
+                  ${state.refs.articles.map(a => `<option>${a}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="grid g3" style="margin-top:10px;">
+              <div class="field">
+                <label>Cəza İli</label>
+                <input type="number" id="ncYears" value="2" min="0">
+              </div>
+              <div class="field">
+                <label>Cəza Ayı</label>
+                <input type="number" id="ncMonths" value="0" min="0">
+              </div>
+              <div class="field">
+                <label>Həbsdə Keçən Gün (Avto-Çıxılacaq)</label>
+                <input type="number" id="ncDetention" value="30" min="0">
+              </div>
+            </div>
+
+            <div style="margin-top:16px; text-align:right;">
+              <button type="button" class="btn neutral" onclick="closeModal()">Ləğv Et</button>
+              <button type="submit" class="btn">Qeydiyyata Al və Yadda Saxla</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalHost").innerHTML = html;
+}
+
+function handleSaveNewConvict(e) {
+  e.preventDefault();
+  const finVal = document.getElementById("ncFin").value.trim().toUpperCase();
+  const baseData = FIN_SIMULATION_DB[finVal] || {};
+
+  const convict = {
+    id: `M-2026-0${Math.floor(100 + Math.random() * 900)}`,
+    fin: finVal,
+    fullname: document.getElementById("ncFullname").value.trim(),
+    birthDate: document.getElementById("ncBirth").value,
+    gender: document.getElementById("ncGender").value || baseData.gender || "Kişi",
+    unitId: state.user.unitId,
+    status: "CEZACEKEN",
+    addressReg: document.getElementById("ncAddressReg").value.trim() || baseData.addressReg || "Qeydiyyat ünvanı daxil edilib",
+    addressFact: document.getElementById("ncAddressFact").value.trim() || baseData.addressFact || "Faktiki ünvan daxil edilib",
+    cases: [{
+      courtName: document.getElementById("ncCourt").value,
+      judgeName: "Məhkəmə Hakimi",
+      prosecutor: "Dövlət İttihamçısı",
+      lawyer: "Müdafiəçi Vəkil",
+      arrestBody: "RPİ İstintaq Şöbəsi",
+      articles: [document.getElementById("ncArticle").value],
+      sentenceYears: parseInt(document.getElementById("ncYears").value) || 0,
+      sentenceMonths: parseInt(document.getElementById("ncMonths").value) || 0,
+      sentenceDays: 0,
+      detentionDays: parseInt(document.getElementById("ncDetention").value) || 0,
+      startDate: new Date().toISOString().split('T')[0]
+    }],
+    documents: []
+  };
+
+  state.convicts.push(convict);
+  addLog("QEYDİYYAT", `Yeni məhkum daxil edildi: ${convict.fullname} (${convict.id})`);
+  closeModal();
+  showToast("Məhkum profil yaratma prosesi tamamlandı.");
+  navigate('convicts');
+}
+
+function openTransferModal(convictId) {
+  const html = `
+    <div class="overlay">
+      <div class="modal">
+        <header>
+          <h3>🔄 Məhkumun Digər Müəssisəyə Köçürülməsi</h3>
+          <button class="x" onclick="closeModal()">×</button>
+        </header>
+        <div class="body">
+          <p>Təyinat penitensiar müəssisəsini seçin. Məhkum <b>"Köçürülən"</b> statusuna keçəcək və qarşı tərəfin Qurum Rəhbəri tərəfindən təsdiqlənənədək tranzitdə qalacaqdır.</p>
+          <div class="field" style="margin-top:14px;">
+            <label>Təyinat Qurumu</label>
+            <select id="trgUnit">
+              ${UNITS.filter(u => u.id !== state.user.unitId && u.id !== 99).map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <footer>
+          <button class="btn neutral" onclick="closeModal()">Ləğv Et</button>
+          <button class="btn" onclick="executeTransfer('${convictId}')">Köçürməni Başlat</button>
+        </footer>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalHost").innerHTML = html;
+}
+
+function executeTransfer(convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  const targetId = parseInt(document.getElementById("trgUnit").value);
+
+  c.status = "KOCURULEN";
+  c.targetUnitId = targetId;
+
+  addLog("KÖÇÜRMƏ İNİSİASİYASI", `Məhkum köçürməyə göndərildi: ${c.fullname} -> Qurum ID: ${targetId}`);
+  closeModal();
+  showToast("Köçürmə əmri verildi. Məhkum tranzit statusuna keçdi.");
+  navigate('profile', convictId);
+}
+
+function openArchiveModal(convictId) {
+  const html = `
+    <div class="overlay">
+      <div class="modal">
+        <header>
+          <h3>📦 Qeydiyyatdan Çıxarma və Arxivləşdirmə</h3>
+          <button class="x" onclick="closeModal()">×</button>
+        </header>
+        <div class="body">
+          <p style="color:var(--alert); font-weight:600;">Məlumatlar heç vaxt silinmir, daimi olaraq Arxiv bölməsində qalacaqdır.</p>
+          <div class="field" style="margin-top:14px;">
+            <label>Qeydiyyatdan Çıxarılmanın Səbəbi</label>
+            <select id="archReason">
+              <option>Cəza müddəti başa çatmışdır</option>
+              <option>Əfv sərəncamına əsasən azad edilib</option>
+              <option>Amnistiya aktına əsasən azad edilib</option>
+              <option>Məhkum vəfat etmişdir</option>
+            </select>
+          </div>
+        </div>
+        <footer>
+          <button class="btn neutral" onclick="closeModal()">Ləğv Et</button>
+          <button class="btn danger" onclick="executeArchive('${convictId}')">Arxivə Keçir</button>
+        </footer>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalHost").innerHTML = html;
+}
+
+function executeArchive(convictId) {
+  const c = state.convicts.find(item => item.id === convictId);
+  const reason = document.getElementById("archReason").value;
+
+  c.status = "ARXIVDE";
+  addLog("ARXİVLƏŞDİRMƏ", `Məhkum arxivləndi: ${c.fullname}. Səbəb: ${reason}`);
+  closeModal();
+  showToast("Məhkum qeydiyyatdan çıxarıldı və arxivə keçirildi.");
+  navigate('profile', convictId);
+}
+
+function openSimaSignModal(docId) {
+  let activeConvictId = null;
+  let docTitle = "Sənəd";
+
+  state.convicts.forEach(c => {
+    if (c.documents) {
+      const d = c.documents.find(doc => doc.id === docId);
+      if (d) {
+        docTitle = d.title;
+        activeConvictId = c.id;
+      }
+    }
+  });
+
+  startSimaSigningProcess(docTitle, (certId) => {
+    const timestamp = new Date().toLocaleString("az-AZ");
+
+    state.convicts.forEach(c => {
+      if (c.documents) {
+        const d = c.documents.find(doc => doc.id === docId);
+        if (d) {
+          d.signed = true;
+          d.signDetails = {
+            signedBy: state.user.name + " (Qurum Rəhbəri)",
+            role: state.user.role,
+            certId: certId,
+            timestamp: timestamp
+          };
+        }
+      }
+    });
+
+    addLog("ELEKTRON İMZA", `Sənəd SİMA İmza ilə təsdiqləndi. DocID: ${docId}, Sertifikat: ${certId}`);
+    showToast(`Sənəd SİMA rəqəmsal imzası ilə təsdiq olundu! (${certId})`);
+    
+    if (activeConvictId) {
+      navigate('profile', activeConvictId);
+    }
+  });
+}
+
+function viewDocumentSheet(title, convictId) {
+  openPrintRegistrationModal(convictId);
+}
+
+function showToast(msg) {
+  const host = document.getElementById("toastHost");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerText = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+window.onload = () => {
+  initSeedData();
+};
+</script>
+</body>
+</html>
